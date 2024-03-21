@@ -1,12 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgFor, NgIf } from '@angular/common'; // PARA USAR NgFot, NgIf, NgSwitch --> https://angular.dev/guide/directives
 import {MatTableModule} from '@angular/material/table';
 import { MatTableDataSource } from '@angular/material/table';
+import { TableConfig } from '../../models/table-config.model';
+import { TableAction } from '../../models/table-action.model';
+import { TABLE_ACTION } from '../../enum/table-action.enum';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor,NgIf,MatTableModule],
+  imports: [NgFor,NgIf,MatTableModule,MatFormFieldModule, MatInputModule,],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -16,30 +22,53 @@ export class HomeComponent implements OnInit  {
   defineColumnas:string[]=['nombre','apellido','email','fecha_ingreso'];
   mostrarTabla:boolean=false;
   email:string='gomez.maira.anabella@gmail.com';
+  tableConfig: TableConfig | undefined;
+  @Output() action:EventEmitter<TableAction>=new  EventEmitter();
   constructor(private http:HttpClient){
-    this.datos=new MatTableDataSource<any>([]);
+      this.datos = new MatTableDataSource<any>(); 
   }
   ngOnInit(): void {
       this.solicitarDatos();
   }
 
-  insertDatos(){
-
+  solicitarDatos() {
+    
+    this.http.get<any>(this.baseURI + 'pruebaAngular.php?email=' + this.email)
+      .subscribe((resp) => {
+        console.log(resp);
+       
+        if (resp ) {
+          
+          this.datos.data=  [resp];
+          console.log(this.datos.data);
+        } else {
+          // Manejar el caso de respuesta vacía (opcional)
+          console.log('No se encontraron datos para el email proporcionado.');
+        }
+      }, (error) => {
+        console.log('Error al obtener datos:', error);
+        // Manejar el error (opcionalmente muestra un mensaje)
+      });
   }
   
-  
+  setConfig(config: TableConfig) {
+    this.tableConfig = config;
 
-  solicitarDatos(){
-
-    this.http.get<any>(this.baseURI+'datos_personales.php?email=' + this.email).subscribe((data)=>{
-      this.datos.data=data;
-      console.log(this.datos.data);
-
-    }, (error)=>{
-      console.log('error al obtener datos:',error)
-    })
-
+   
+    if (this.tableConfig.showActions) {
+      this.defineColumnas.push('acciones');
+    }
   }
+OnEdit(row:any){
+  this.action.emit({action:TABLE_ACTION.EDIT,row});
+  console.log(row, 'editar')
+
+}
+onDelete(row:any){
+  this.action.emit({action:TABLE_ACTION.DELETE,row});
+  console.log(row, 'eliminar')
+
+}
 
   ocultartabla(){
     this.mostrarTabla=false;
@@ -47,17 +76,13 @@ export class HomeComponent implements OnInit  {
   mostrartabla(){
     this.mostrarTabla= true;
   }
-  modificar(){
-    alert('hola');
-  }
-  mostrarMensaje() {
-    console.log('Mouse encima');
-    // Aquí podrías mostrar tu mensaje, por ejemplo, usando un Toastr o alert
+ 
+  
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.datos.filter = filterValue.trim().toLowerCase();
+    console.log(this.datos.filter)
+    console.log(event)
   }
 
-  // Función para ocultar el mensaje cuando se quita el mouse de una fila
-  ocultarMensaje() {
-    console.log('Mouse fuera');
-    // Aquí podrías ocultar tu mensaje si lo mostraste anteriormente
-  }
 }
