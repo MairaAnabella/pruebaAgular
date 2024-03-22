@@ -1,3 +1,4 @@
 export interface TableConfig{
-    showActions?:boolean
+    showActions?:boolean,
+    isPaginable?:boolean
 }

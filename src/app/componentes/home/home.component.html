@@ -1,7 +1,7 @@
 
 <!--   <button type="button" class="btn btn-dark boton" (click)="mostrartabla()">Mostrar tabla</button>
-  <button type="button" class="btn btn-warning boton" (click)="ocultartabla()">Ocultar tabla</button>
-  <button type="button" class="btn btn-info boton">Modificar</button> -->
+  <button type="button" class="btn btn-warning boton" (click)="ocultartabla()">Ocultar tabla</button>-->
+  <button type="button" class="btn btn-info boton" (click)="openDialog()">Subir datos</button> 
 
   <mat-form-field >
     <mat-label>Filter</mat-label>
@@ -34,5 +34,8 @@
     </tbody>
    
   </table> 
-
+  <ng-container *ngIf="tableConfig?.isPaginable">      
+    
+    <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+   </ng-container>
   

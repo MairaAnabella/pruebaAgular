@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output,AfterViewInit, ViewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NgFor, NgIf } from '@angular/common'; // PARA USAR NgFot, NgIf, NgSwitch --> https://angular.dev/guide/directives
 import {MatTableModule} from '@angular/material/table';
@@ -8,25 +8,49 @@ import { TableAction } from '../../models/table-action.model';
 import { TABLE_ACTION } from '../../enum/table-action.enum';
 import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
+import { InsertDatosComponent } from '../../abm/insert-datos/insert-datos.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor,NgIf,MatTableModule,MatFormFieldModule, MatInputModule,],
+  imports: [NgFor,NgIf,MatTableModule,MatFormFieldModule, MatInputModule, MatPaginatorModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit  {
+export class HomeComponent implements OnInit, AfterViewInit  {
   private baseURI: string = "https://seccionales.unionferroviaria.org.ar/app/mutual/";
   datos:MatTableDataSource<any>;
   defineColumnas:string[]=['nombre','apellido','email','fecha_ingreso'];
   mostrarTabla:boolean=false;
   email:string='gomez.maira.anabella@gmail.com';
   tableConfig: TableConfig | undefined;
+  tablaCofig:TableConfig={
+    isPaginable:true
+  }
   @Output() action:EventEmitter<TableAction>=new  EventEmitter();
-  constructor(private http:HttpClient){
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  
+  constructor(private http:HttpClient,public dialog: MatDialog){
       this.datos = new MatTableDataSource<any>(); 
   }
+
+
+  openDialog(): void {
+    const dialogRef = this.dialog.open(InsertDatosComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+     
+    });}
+  
+
+  ngAfterViewInit() {
+    this.datos.paginator = this.paginator;
+    
+  }
+
   ngOnInit(): void {
       this.solicitarDatos();
   }

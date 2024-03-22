@@ -1,0 +1,28 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  margin: 1rem auto;
+  max-width: 320px;
+}
+.buttons-sample {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.button-sample {
+  display: grid;
+ /*  flex: 1 0 20%; */
+  align-items: center;
+  justify-content: space-evenly;
+}
+.btn {
+    margin: 5px;
+  border: #624cab solid 2px;
+  color: #624cab;
+  border-radius: 15px;
+}
+
+h2{
+  text-align: center;
+  text-transform: uppercase;
+}
